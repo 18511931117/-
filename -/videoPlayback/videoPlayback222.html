@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link type="text/css" rel="stylesheet" href="css/jeDate-test.css">
+    <link type="text/css" rel="stylesheet" href="skin/jedate.css">
+    <link type="text/css" rel="stylesheet" href="css/videoPlayback.css">
+    <script type="text/javascript" src="js/jedate.js"></script>
+
+</head>
+
+<body>
+    <div class="wrap">
+        <!--<header>-->
+            <!--<h2>历史回放</h2>-->
+        <!--</header>-->
+        <div class="container">
+            <nav>
+                <div class="nav-top">
+                    <button type="button" class="el-button btn el-button--primary is-plain"><span>条件搜索</span></button>
+                    <div class="select-time">
+                        <div class="tiem">
+                            <label>选择时间</label>
+                            <input type="text" class="demo-input jeinput" placeholder="请选择日期" id="test1">
+                            <!--<input type="text" class="jeinput" id="test03" placeholder="YYYY-MM-DD">-->
+                        </div>
+                        <div class="compress">
+                            <label>压缩方式</label>
+                            <select class="queryselect" id="numbers">
+                                <option value="0">未压缩</option>
+                                <option value="1">压缩</option>
+
+                            </select>
+                        </div>
+                        <div class="ipc">
+                            <ul class="ipclist">
+
+
+                            </ul>
+                            <table class="ipc-table">
+                                <tr>
+                                    <p>ipc的列表</p>
+                                </tr>
+
+                            </table>
+                        </div>
+                        <div class="seek">
+                            <button type="button" id="btn" class="el-button btn el-button--primary is-plain" onclick="search()"><span>搜索</span></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="nav-buttom">
+                    <button type="button" class="el-button btn el-button--primary is-plain"><span>文件列表</span></button>
+                    <div class="filelist">
+                        <div class="filetitle">
+
+                            <table class="table">
+                               <thead>
+                               <tr>
+                                   <th>行号</th>
+                                   <th>开始时间</th>
+                                   <th>结束时间</th>
+                               </tr>
+                               </thead>
+                                <tbody class="tbody">
+
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </nav>
+            <main>
+                <div class="video">
+
+                    <div class="video-top">
+                        <div class="top-one video-play active">
+                            <embed type="application/x-vlc-plugin" pluginspage="http://www.videolan.org" width="98%"
+                                height="95%" controls="false" id="vlc" />
+                            <div class="mengce active"></div>
+                        </div>
+                        <div class="top-two video-play">
+                            <embed type="application/x-vlc-plugin" pluginspage="http://www.videolan.org" width="98%"
+                                height="95%" controls="false" id="vlc1" />
+                            <div class="mengce"></div>
+                        </div>
+                    </div>
+                    <div class="video-bottom">
+                        <div class="top-three video-play">
+                            <embed type="application/x-vlc-plugin" pluginspage="http://www.videolan.org" width="98%"
+                                height="95%" controls="false" id="vlc2" />
+                            <div class="mengce"></div>
+                        </div>
+                        <div class="top-four video-play">
+                            <embed type="application/x-vlc-plugin" pluginspage="http://www.videolan.org" width="98%"
+                                height="95%" controls="false" id="vlc3" />
+                            <div class="mengce"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="play">
+                    <button type="button" class="btn" onclick="playURL()">播放</button>
+                    <button type="button" class="btn" onclick="stopURL()">停止</button>
+                    <button type="button" class="btn" onclick="pauseURL()">暂停</button>
+                </div>
+                <div class="timer-shaft">
+                    <canvas id="timeline" width="1000" height="62" style="cursor: pointer;border:1px solid #2b2f33;background-color: #2b2f33;"
+                        ondragstart="return false;"></canvas>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="./jquery-1.10.2.js"></script>
+<script type="text/javascript" src="./videoPlayback2.js"></script>
+<script src="laydate/laydate.js"></script>
+<script>
+
+
+    //日期插件
+    var time = '' //当前时间
+    var nextDay = '' //+1天
+    var thisTime = ''
+     laydate.render({
+         elem: '#test1', //指定元素
+         // type: 'datetime',
+         value: new Date(),
+         done: function(value, date, endDate){//控件选择完毕后的回调---点击日期、清空、现在、确定均会触发。
+            time = value //得到日期生成的值，如：2017-08-18
+
+             var formatTimeS = new Date(time.replace(/-/g,"/")).getTime()
+
+             var oneFay = 24 * 60 * 60 * 1000
+             var lastTime = formatTimeS + oneFay
+             nextDay = getMyDate(lastTime)
+             thisTime = getMyDate(formatTimeS)
+         }
+     });
+
+    //补零操作
+    function addZero(num) {
+        if (num < 10) {
+            num = '0' + num;
+        }
+        return num;
+    }
+
+    function getMyDate(str) {
+        var oDate = new Date(str),
+            oYear = oDate.getFullYear(),
+            oMonth = oDate.getMonth()+1,
+
+            oDay = oDate.getDate(),
+            oHour = oDate.getHours(),
+            oMin = oDate.getMinutes(),
+            oSen = oDate.getSeconds(),
+            oTime = oYear + '-' + addZero(oMonth) + '-' + addZero(oDay) + ' ' + addZero(oHour) + ':' +
+                addZero(oMin) + ':' + addZero(oSen);
+        return oTime;
+
+    }
+
+   // jeDate("#test03", {
+   //     onClose: true,
+   //     isinitVal: false,
+   //     format: "YYYY-MM-DD hh:mm:ss",
+   //     donefun: function (obj) {
+   //         time = obj.val
+   //         var formatTimeS = new Date(time.replace(/-/g,"/")).getTime()
+   //
+   //         var oneFay = 24 * 60 * 60 * 1000
+   //         var lastTime = formatTimeS + oneFay
+   //         nextDay = getMyDate(lastTime)
+   //         console.log(time)
+   //         console.log(nextDay)
+   //
+   //     }
+   // })
+
+    $(document).ready(function () {
+        ipcList()  //进页面加载数据
+    })
+
+
+    function ipcList() {
+        var http = 'http://192.168.10.51:10010'
+
+        var str = {
+            "EasyDarwin": {
+                "Header": {
+                    "Version": "1.0",
+                    "AppType": "EasyClient",
+                    "TerminalType": "PC",
+                    "CSeq": "3",
+                    "MessageType": "MSG_CS_GET_OR_MODIFY_IPC_CATALOG_REQ"
+                },
+                "Body": {
+                    "ActionType": "query",
+                    "Username": "admin"
+
+                }
+            }
+        }
+
+        $.ajax({
+            type: 'post',
+            url: http,
+            dataType: 'json',
+            data: JSON.stringify(str),
+            success: function (data) {
+
+                var ipctd = ''
+                var ipc = data.EasyDarwin.Body.IpcCatalogs
+                for (let i = 0; i < ipc.length; i++) {
+                    ipctd += '<tr class="houer-msg" title='+ipc[i].NvrSerial+'  data-type='+ipc[i].IpcChannel+'>'+
+                        '<td class="td-name">' + ipc[i].Name + '</td>' +
+                        '<td class="td-name">' + ipc[i].IP + '</td>' +
+                        '</tr>'
+                }
+                $('.ipc-table').append(ipctd)
+                $(".ipc-table").find(".houer-msg").eq(0).addClass("active2")
+            }
+        })
+    }
+
+    //模拟数据
+    var timecell = [
+        // {
+        //    "beginTime":new Date().getTime()-3*3600*1000,
+        //    "endTime":new Date().getTime()-1*3600*1000,
+        //    "style": {
+        //     "background":"rgba(132, 244, 180, 0.498039)"
+        //    }
+        // }
+    ]
+    $("#timeline").TimeSlider({
+        init_cells: timecell
+    });
+    var oneTime = ""
+    var nextdayTwo = ""
+    var fristDay = ""
+    $("#timeline").mouseup(function () {
+
+        $("#timeline").TimeSlider('returnMouseupTime', null, null, function (timess) {
+          //  console.log("mouseupTime = " + new Date(timess));
+            //获取当前那天的时间化成秒
+            oneTime = new Date(timess).getTime()
+            fristDay = getMyDate(oneTime)
+       //     console.log(fristDay)
+        });
+        var oneFay = 24 * 60 * 60 * 1000
+        //当天的前一天的秒数
+        var lastTimes = oneTime + oneFay
+       // console.log(oneTime)
+        //前一天的时间转换
+        nextdayTwo = getMyDate(lastTimes)
+      //  console.log(nextdayTwo)
+    })
+
+    //改变颜色
+    $('.ipc-table').on("click", ".houer-msg", function (e) {
+        $('.ipc-table .houer-msg').removeClass("active2")
+        $(this).addClass("active2")
+    })
+
+
+    function search() {
+        timecell.splice(0,timecell.length)
+
+        var IsReduce = $("#numbers option:selected").val();
+        var Serial = $('.ipc-table .houer-msg.active2').attr("title")
+        var Channel = $('.ipc-table .houer-msg.active2').attr("data-type")
+        var str = {
+            "EasyDarwin": {
+                "Header": {
+                    "Version": "1.0",
+                    "AppType": "EasyClient",
+                    "TerminalType": "Linux",
+                    "CSeq": "3",
+                    "MessageType": "MSG_CS_SEARCHTIMERANGELIST_REQ"
+                },
+                "Body": {
+                    "Serial": Serial,
+                    "Channel": Channel,
+                    "IsReduce": IsReduce,
+                    "StartTime": thisTime,
+                    "EndTime": nextDay
+                }
+            }
+        }
+        var http = 'http://192.168.10.51:10010'
+        $.ajax({
+            type: 'post',
+            url: http,
+            data: JSON.stringify(str),
+            dataType: 'json',
+            success: function (data) {
+                var res = data.EasyDarwin.Body.TimeRangeList
+                $('.tbody').html('')
+                var tr = ''
+
+                for (var i = 0; i < res.length; i++) {
+                    tr += '<tr>' +
+                        '<td>' + i + '</td>' +
+                        '<td>' + res[i].StartTime + '</td>' +
+                        '<td>' + res[i].EndTime + '</td>' +
+                        '</tr>'
+
+                    var item = {
+                        "beginTime": new Date(res[i].StartTime.replace(/-/g,"/")).getTime(),
+                        "endTime": new Date(res[i].EndTime.replace(/-/g,"/")).getTime(),
+                        "style": {
+                            "background": "rgba(132, 244, 180, 0.498039)"
+                        }
+                    };
+                    timecell.push(item);
+                }
+                $("#timeline").TimeSlider({
+                    init_cells: ""
+                });
+                $("#timeline").TimeSlider({
+                    init_cells: timecell
+                });
+
+
+                //    $("#timeline").mousemove()
+                $('.tbody').append(tr)
+
+                var time = new Date($(".table tbody").find("tr").eq(0).find("td").eq(1).html().replace(/-/g,"/")).getTime();
+                console.log(time)
+                $("#timeline").TimeSlider('set_time_to_middle',time);
+            }
+        })
+    }
+
+
+
+
+    function playURL() {
+        var IsReduce = $("#numbers option:selected").val();
+        var Serial = $('.ipc-table .houer-msg.active2').attr("title")
+        var Channel = $('.ipc-table .houer-msg.active2').attr("data-type")
+
+        var element = $(".video-play .mengce.active").prev("embed")[0]
+        // var element = document.getElementById("vlc")
+
+        var http = "http://192.168.10.51:10010"
+        $.ajax({
+            type: 'get',
+            dataType: "json",
+            url: http + '/api/v1/getrecordurl?device='+Serial+'&channel='+Channel+'&protocol=rtsp&reserve=1&starttime='+fristDay+'&endtime='+nextdayTwo+'&isreduce='+IsReduce,
+            success: function (data) {
+                element.playlist.stop();
+                element.playlist.clear();
+                var Url = data.EasyDarwin.Body.URL
+                var options = new Array("rtsp-tcp")
+                var id = element.playlist.add(Url,"103url", options)
+                element.playlist.play()
+            }
+
+        })
+    }
+    function stopURL(){
+        var element = $(".video-play .mengce.active").prev("embed")[0]
+
+        element.playlist.stop()
+    }
+    function pauseURL() {
+        var element = $(".video-play .mengce.active").prev("embed")[0]
+        element.playlist.togglePause()
+    }
+    $(".video-play .mengce").on("click", function (e) {
+        e.stopPropagation();
+        $(".video-play .mengce").removeClass("active")
+        $(".video-play .mengce").css("z-index", "2")
+        $(this).addClass("active")
+        $(this).css("z-index", "1")
+        $(this).prev("embed").css("z-index", "2")
+    })
+</script>
+
+</html>
